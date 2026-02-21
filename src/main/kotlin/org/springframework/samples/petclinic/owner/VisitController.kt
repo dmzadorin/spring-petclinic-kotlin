@@ -22,6 +22,7 @@ import org.springframework.validation.BindingResult
 import org.springframework.web.bind.WebDataBinder
 import org.springframework.web.bind.annotation.*
 import jakarta.validation.Valid
+import java.time.DayOfWeek
 
 /**
  * @author Juergen Hoeller
@@ -66,6 +67,9 @@ class VisitController(val visits: VisitRepository, val pets: PetRepository) {
     // Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is called
     @PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
     fun processNewVisitForm(@Valid visit: Visit, result: BindingResult): String {
+        if (visit.date.dayOfWeek == DayOfWeek.SUNDAY) {
+            result.rejectValue("date", "sunday", "Visits cannot be scheduled on Sundays")
+        }
         return if (result.hasErrors()) {
             "pets/createOrUpdateVisitForm"
         } else {
