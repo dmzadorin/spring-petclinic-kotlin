@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.owner
 
 import org.springframework.samples.petclinic.visit.Visit
 import org.springframework.samples.petclinic.visit.VisitRepository
+import org.springframework.samples.petclinic.visit.VisitValidator
 import org.springframework.stereotype.Controller
 import org.springframework.validation.BindingResult
 import org.springframework.web.bind.WebDataBinder
@@ -37,6 +38,11 @@ class VisitController(val visits: VisitRepository, val pets: PetRepository) {
     @InitBinder
     fun setAllowedFields(dataBinder: WebDataBinder) {
         dataBinder.setDisallowedFields("id")
+    }
+
+    @InitBinder("visit")
+    fun initVisitBinder(dataBinder: WebDataBinder) {
+        dataBinder.addValidators(VisitValidator())
     }
 
     /**
