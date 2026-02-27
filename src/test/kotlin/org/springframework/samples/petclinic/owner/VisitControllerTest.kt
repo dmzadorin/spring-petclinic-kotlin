@@ -13,6 +13,9 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 /**
  * Test class for [VisitController]
@@ -60,6 +63,18 @@ class VisitControllerTest {
                 .param("name", "George")
         )
                 .andExpect(model().attributeHasErrors("visit"))
+                .andExpect(status().isOk)
+                .andExpect(view().name("pets/createOrUpdateVisitForm"))
+    }
+
+    @Test
+    fun testProcessNewVisitFormOnSundayFails() {
+        val sunday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.SUNDAY))
+        mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID)
+                .param("date", sunday.toString())
+                .param("description", "Sunday visit")
+        )
+                .andExpect(model().attributeHasFieldErrors("visit", "date"))
                 .andExpect(status().isOk)
                 .andExpect(view().name("pets/createOrUpdateVisitForm"))
     }
