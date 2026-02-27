@@ -64,4 +64,25 @@ class VisitControllerTest {
                 .andExpect(view().name("pets/createOrUpdateVisitForm"))
     }
 
+    @Test
+    fun testProcessNewVisitFormOnSundayHasErrors() {
+        mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID)
+                .param("description", "Visit Description")
+                .param("date", "2026-03-01") // 2026-03-01 is a Sunday
+        )
+                .andExpect(model().attributeHasFieldErrors("visit", "date"))
+                .andExpect(status().isOk)
+                .andExpect(view().name("pets/createOrUpdateVisitForm"))
+    }
+
+    @Test
+    fun testProcessNewVisitFormOnWeekdaySuccess() {
+        mockMvc.perform(post("/owners/*/pets/{petId}/visits/new", TEST_PET_ID)
+                .param("description", "Visit Description")
+                .param("date", "2026-03-02") // 2026-03-02 is a Monday
+        )
+                .andExpect(status().is3xxRedirection)
+                .andExpect(view().name("redirect:/owners/{ownerId}"))
+    }
+
 }
